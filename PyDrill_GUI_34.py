@@ -3,8 +3,9 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-import shutil, os, stat, time, datetime, glob
+import shutil, os, stat, time
 from datetime import timedelta
+from datetime import datetime
 
 #Define class
 
@@ -60,16 +61,26 @@ class ParentWindow(Frame):
             self.t2.set(folderOutput) #set dest path for transfer function
 
         def transfer(self): #button3 function
+            now = datetime.now()
             fileFrom = self.t1.get() #create variable for source path
             fileTo = self.t2.get() #create variable for dest path
-            today = datetime.datetime.today()
+            today = datetime.today()
             last24Hours = str(today - timedelta(days = 1))
-                
-            for file in glob.glob(os.path.join(fileFrom, '*.txt')):
-                epochDate = os.path.getmtime(file)
-                modifiedDate = datetime.datetime.fromtimestamp(int(epochDate)).strftime('%Y-%m-%d %H:%M:%S')
-                if modifiedDate > last24Hours:
-                    shutil.copy(file, fileTo)
+
+            
+            sourceFiles = os.listdir(fileFrom)    
+            for file in sourceFiles:
+                if file.endswith(".txt"):
+                    timeModified = datetime.fromtimestamp(os.path.getmtime(fileFrom + '/'+ file))
+                    timeDiff = (now - timeModified)
+                    if timeDiff > timedelta(days=1):
+                        print (file, '\n' ,timeDiff, "\nStatus: Old\n")
+                    else:
+                        print (file, '\n' ,timeDiff, "\nStatus: New\n")
+                        shutil.copy(fileFrom + '/' + file, fileTo)
+                    
+
+                    
 
 #Python looks here first and runs the functions that fall below this line.
 
